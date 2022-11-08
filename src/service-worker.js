@@ -11,7 +11,7 @@ import { clientsClaim } from "workbox-core";
 import { ExpirationPlugin } from "workbox-expiration";
 import { precacheAndRoute, createHandlerBoundToURL } from "workbox-precaching";
 import { registerRoute } from "workbox-routing";
-import { StaleWhileRevalidate } from "workbox-strategies";
+import { NetworkFirst, StaleWhileRevalidate } from "workbox-strategies";
 
 clientsClaim();
 
@@ -63,6 +63,47 @@ registerRoute(
     })
 );
 
+registerRoute(
+    ({ url }) =>
+        url.origin === "https://fonts.googleapis.com" ||
+        url.origin === "https://fonts.gstatic.com",
+    new NetworkFirst({
+        cacheName: "fonts",
+        plugins: [
+            new ExpirationPlugin({
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+                maxEntries: 30,
+            }),
+        ],
+    })
+);
+
+registerRoute(
+    ({ url }) => url.origin.includes("qorebase.io"),
+    new NetworkFirst({
+        cacheName: "apiData",
+        plugins: [
+            new ExpirationPlugin({
+                maxAgeSeconds: 360,
+                maxEntries: 30,
+            }),
+        ],
+    })
+);
+
+registerRoute(
+    ({ url }) => /\.(jpe?g|png)$/i.test(url.pathname),
+    new StaleWhileRevalidate({
+        cacheName: "imageApi",
+        plugins: [
+            new ExpirationPlugin({
+                maxAgeSeconds: 360,
+                maxEntries: 30,
+            }),
+        ],
+    })
+);
+
 // This allows the web app to trigger skipWaiting via
 // registration.waiting.postMessage({type: 'SKIP_WAITING'})
 self.addEventListener("message", (event) => {
@@ -72,3 +113,17 @@ self.addEventListener("message", (event) => {
 });
 
 // Any other custom service worker logic can go here.
+
+self.addEventListener("install", function (event) {
+    console.log("SW install");
+
+    const asyncInstall = new Promise(function (resolve) {
+        console.log("waitin instal to finish...");
+        setTimeout(resolve, 5000);
+    });
+
+    event.waitUntil(asyncInstall);
+});
+self.addEventListener("activate", function (event) {
+    console.log("SW Activate");
+});

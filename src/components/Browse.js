@@ -76,7 +76,7 @@ const Browse = () => {
                                 className="w-full h-full object-cover object-center overlay overflow-hidden rounded-xl"
                             />
                         </div>
-                        <div classNameName="overlay left-0 top-0 bottom-0 flex justify-center flex-col pl-48 md:pl-72">
+                        <div className="overlay left-0 top-0 bottom-0 flex justify-center flex-col pl-48 md:pl-72">
                             <h5 className="text-lg font-semibold">
                                 Children Room
                             </h5>
