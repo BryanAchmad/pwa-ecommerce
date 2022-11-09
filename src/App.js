@@ -7,10 +7,15 @@ import Hero from "./components/Hero";
 import Clients from "./components/Clients";
 import AsideMenu from "./components/AsideMenu";
 import Footer from "./components/Footer";
+import Offline from "./components/Offline";
 
 function App() {
     const [items, setItems] = useState([]);
+    const [offlineStatus, setOfflineStatus] = useState(!navigator.onLine);
 
+    const handleOfflineStatus = () => {
+        setOfflineStatus(!navigator.onLine);
+    };
     const fetchItems = () => {
         axios
             .get(
@@ -28,28 +33,41 @@ function App() {
             });
     };
 
-    useEffect(function () {
-        // const fetchData = async () => {
-        //     const response = await fetch(
-        //         ,
-        //         {
-        //             headers: {
-        //                 "Content-Type": "application/json",
-        //                 Accept: "*/*",
-        //                 "x-api-key": process.env.API_KEY,
-        //             },
-        //         }
-        //     );
-        //     const { nodes } = await response.json();
-        //     console.log(nodes);
-        //     setItems(nodes);
-        // };
+    useEffect(
+        function () {
+            // const fetchData = async () => {
+            //     const response = await fetch(
+            //         ,
+            //         {
+            //             headers: {
+            //                 "Content-Type": "application/json",
+            //                 Accept: "*/*",
+            //                 "x-api-key": process.env.API_KEY,
+            //             },
+            //         }
+            //     );
+            //     const { nodes } = await response.json();
+            //     console.log(nodes);
+            //     setItems(nodes);
+            // };
 
-        fetchItems();
-    }, []);
+            fetchItems();
+            handleOfflineStatus();
+            window.addEventListener("online", handleOfflineStatus);
+            window.addEventListener("offline", handleOfflineStatus);
+
+            return function () {
+                window.removeEventListener("online", handleOfflineStatus);
+                window.removeEventListener("offline", handleOfflineStatus);
+            };
+        },
+        [offlineStatus]
+    );
 
     return (
         <>
+            {offlineStatus && <Offline />}
+            {/* <Offline /> */}
             <Header />
             <Hero />
             <Browse />
